@@ -92,19 +92,19 @@ export const CustomerForm = () => (
         <Form data-testid="form">
           <FormLabel>Id</FormLabel>
           <Field name="id" data-testid="id" validate={validateId} />
-          <ErrorMessage data-testid="errorForId" name='errorForId' component='div' />
+          <ErrorMessage data-testid="errorForId" name='id' component='div' />
           <br />
           <FormLabel>First Name</FormLabel>
           <Field name="firstName" data-testid="firstName" validate={validateName} />
-          <ErrorMessage data-testid="errorForFirstName" name='errorForFirstName' component='div' />
+          <ErrorMessage data-testid="errorForFirstName" name='firstName' component='div' />
           <br />
           <FormLabel>Last Name</FormLabel>
           <Field name="lastName" data-testid="lastName" validate={validateLName} />
-          <ErrorMessage data-testid="errorForLastName" name='errorForLastName' component='div' />
+          <ErrorMessage data-testid="errorForLastName" name='lastName' component='div' />
           <br />
           <FormLabel>Date Of Birth</FormLabel>
           <Field type="date" id="dateOfBirth" name="dateOfBirth" data-testid="dateOfBirth" validate={validateDateOfBirth} />
-          <ErrorMessage data-testid="errorForDateOfBirth" name='errorForDateOfBirth' component='div' />
+          <ErrorMessage data-testid="errorForDateOfBirth" name='dateOfBirth' component='div' />
           <br />
           <button type="submit" data-cy="submit">Create / Update Customer</button>
         </Form>
