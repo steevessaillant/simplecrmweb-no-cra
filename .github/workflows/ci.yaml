@@ -29,4 +29,4 @@ jobs:
         if: always()
         with:
             github-token: ${{ secrets.GITHUB_TOKEN }}
-            result-file: .\simplecrmweb-no-cra\result.json
+            result-file: ./simplecrmweb-no-cra/simplecrmweb-no-cra/result.json
