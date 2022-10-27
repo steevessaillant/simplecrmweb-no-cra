@@ -1,5 +1,5 @@
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import {Formik, Form, Field, ErrorMessage} from 'formik';
 import moment from "moment";
 import { FormLabel } from 'react-bootstrap';
 import {postToServer} from "../api/post";
@@ -49,8 +49,6 @@ export const CustomerForm = () => {
     return error;
   }
 
-
-
   return (<div>
         <h1>Customer Edit Form</h1>
         <Formik
@@ -60,19 +58,21 @@ export const CustomerForm = () => {
               lastName: '',
               dateOfBirth: '',
             }}
-            onSubmit={(values) => {
+            onSubmit={(values, { setSubmitting }) => {
               if (values.id !== '' && values.firstName !== ''
                   && values.lastName !== '' && values.dateOfBirth !== '') {
-                postToServer(values).then(r => {
-                  document.writeln(r.statusText)
-                  // setTimeout(() => {
-                  //   document.location.reload()
-                  // }, 2000)
+                postToServer(values).then(response => {
+                  if(response.ok){
+                    //setResult(response.statusText);
+                    setSubmitting(true);
+                  }else{
+                    setSubmitting(false);
+                  }
                 });
               }
             }}
         >
-          {({validateField, validateForm}) => (
+          {({isSubmitting}) => (
               <Form data-testid="form">
                 <FormLabel>Id</FormLabel>
                 <Field name="id" data-testid="id" validate={validateId}/>
@@ -91,7 +91,8 @@ export const CustomerForm = () => {
                        validate={validateDateOfBirth}/>
                 <ErrorMessage data-testid="errorForDateOfBirth" name='dateOfBirth' component='div'/>
                 <br/>
-                <button type="submit" data-cy="submit">Create / Update Customer</button>
+                <button type="submit" name="submit" data-testid="submit" disabled={isSubmitting}>Create / Update Customer</button>
+
               </Form>
           )}
         </Formik>

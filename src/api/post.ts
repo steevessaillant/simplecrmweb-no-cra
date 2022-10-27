@@ -14,6 +14,7 @@ export function postToServer(state: { id: string, firstName: string, lastName: s
     }).then(
         (postsResponse) => {
             if (postsResponse.ok) {
+                console.log('yesy');
                 return postsResponse;
             }
             return Promise.reject();
