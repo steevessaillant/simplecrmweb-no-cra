@@ -1,4 +1,4 @@
-export const post = (state: { id: string; firstName: string; lastName: string; dateOfBirth: string; }) : Promise<Response> => {
+export function postToServer(state: { id: string, firstName: string, lastName: string, dateOfBirth: string }) {
     return fetch("http://localhost:5000/api/CRMCustomer", {
         method: 'POST',
         headers: {
@@ -11,10 +11,14 @@ export const post = (state: { id: string; firstName: string; lastName: string; d
             lastName: state.lastName,
             dateOfBirth: state.dateOfBirth
         })
-    }).then((response) => {
-        if (!response.ok) {
-            throw Error(response.statusText);
-        }
-        return response;
-    });
+    }).then(
+        (postsResponse) => {
+            if (postsResponse.ok) {
+                return postsResponse;
+            }
+            return Promise.reject();
+        },
+    );
 }
+
+

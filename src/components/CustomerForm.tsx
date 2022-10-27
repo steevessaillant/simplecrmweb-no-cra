@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import moment from "moment";
 import { FormLabel } from 'react-bootstrap';
-import {post} from "../api/post";
+import {postToServer} from "../api/post";
 
 
 
@@ -63,7 +63,7 @@ export const CustomerForm = () => {
             onSubmit={(values) => {
               if (values.id !== '' && values.firstName !== ''
                   && values.lastName !== '' && values.dateOfBirth !== '') {
-                post(values).then(r => {
+                postToServer(values).then(r => {
                   document.writeln(r.statusText)
                   // setTimeout(() => {
                   //   document.location.reload()

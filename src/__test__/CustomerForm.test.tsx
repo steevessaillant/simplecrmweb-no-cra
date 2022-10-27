@@ -1,129 +1,162 @@
 import React from 'react';
-import { cleanup,fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { CustomerForm } from '../components/CustomerForm'
+import {cleanup, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {CustomerForm} from '../components/CustomerForm'
 import '@testing-library/jest-dom';
-import { act } from 'react-dom/test-utils';
-import {post} from "../api/post";
+import {act} from 'react-dom/test-utils';
+
 
 //https://reactjs.org/link/wrap-tests-with-act
-let container: any;
-jest.mock("../api/post")
+
+
+jest.mock('../api/post', () => ({
+    postToServer: jest.fn().mockReturnValue(Promise.resolve([])),
+}));
 
 beforeEach(() => {
-  jest.clearAllMocks();
-  container = document.createElement('div');
-  document.body.appendChild(container);
+    jest.clearAllMocks();
 });
 
 afterEach(() => {
-  document.body.removeChild(container);
-  container = null;
+    cleanup();
 });
 
+describe('should render the component with its heading title', () => {
+
+    it('renders with title', async () => {
+        const expected = "Customer Edit Form";
+
+        render(<CustomerForm/>);
+        const formTitle = await screen.findByRole("heading");
+
+        expect(formTitle).toBeDefined()
+        expect(formTitle.textContent).toEqual(expected);
+    });
+})
+
 describe("when loading and interacting with the form", () => {
-  it('renders without crashing', async () => {
-    // Test first render and componentDidMount
-    await act(async () => {
-      render(<CustomerForm />,container);
-    });
-    cleanup();
-  });
 
-  it("should display alpha-numeric only error for id",  () => {
-    act(() => {
-      render(<CustomerForm />,container);
-    });
+    it("should display alpha-numeric only error for id", async () => {
 
-    waitFor(async () => {
-      const idInput = await container.findByTestId('id');
-      fireEvent.change(idInput, { target: { value: ' ' } }); //just enter a space then blur
-      fireEvent.blur(idInput);
-    });
+        const expected = "Id must be alpha-numeric";
 
-    waitFor(() => {
-      expect(container).toContain("Id must be alpha-numeric");
-    });
-    cleanup();
-  });
+        render(<CustomerForm/>);
 
-  it("should display alpha only error for names",  () => {
-    act(() => {
-      render(<CustomerForm />,container);
+        const idInput = await screen.findByTestId('id');
+        fireEvent.change(idInput, {target: {value: ' '}}); //just enter a space then blur
+        fireEvent.blur(idInput);
+
+        const idErrorLabel = await screen.findByTestId('errorForId');
+
+        expect(idErrorLabel.textContent).toEqual(expected);
+
+
     });
 
-    waitFor(async () => {
-      const firstNameInput = await container.findByTestId('firstName');
-      fireEvent.change(firstNameInput, { target: { value: '1' } });
-      fireEvent.blur(firstNameInput);
+    it("should display alpha only error for first name", async () => {
 
-      const lastNameInput = await container.findByTestId('firstName');
-      fireEvent.change(lastNameInput, { target: { value: '@' } });
-      fireEvent.blur(lastNameInput);
+        const expected = "First name must be alpha";
+
+        render(<CustomerForm/>);
+
+        const firstNameInput = await screen.findByTestId('firstName');
+        fireEvent.change(firstNameInput, {target: {value: '1test'}});
+        fireEvent.blur(firstNameInput);
+
+        const errorForFirstNameLabel = await screen.findByTestId('errorForFirstName');
+
+        expect(errorForFirstNameLabel.textContent).toContain(expected);
     });
 
-    waitFor(() => {
-      expect(container).toContain("name must be alpha");
-    });
-    cleanup();
-  });
+    it("should display alpha only error for last name", async () => {
 
-  it("should display must be 18 error", () => {
-    act(() => {
-      render(<CustomerForm />,container);
-    });
+        const expected = "Last name must be alpha";
 
-    waitFor(async () => {
-      const dateInput = await container.findByTestId('dateOfBirth');
-      if (dateInput !== null)
-        fireEvent.change(dateInput, { target: { value: '2222-01-01' } });
-      /* fire events that update state */
-      const submitButton = await container.findByRole("button", { name: "submit", hidden: true });
-      fireEvent.click(submitButton);
+        render(<CustomerForm/>);
+
+        const lastNameInput = await screen.findByTestId('lastName');
+        fireEvent.change(lastNameInput, {target: {value: '1test'}});
+        fireEvent.blur(lastNameInput);
+
+        const errorForLastNameLabel = await screen.findByTestId('errorForLastName');
+
+        expect(errorForLastNameLabel.textContent).toContain(expected);
     });
 
-    waitFor(() => {
-      expect(container).toContain("Must be 18 years of age");
+    it("should display must be 18 years of age error", async () => {
+
+        const expected = "Must be 18 years of age";
+
+        render(<CustomerForm/>);
+
+        const dateInput = await screen.findByTestId('dateOfBirth');
+        fireEvent.change(dateInput, {target: {value: '2222-01-01'}});
+        fireEvent.blur(dateInput);
+
+        const errorForDateOfBirthLabel = await screen.findByTestId('errorForDateOfBirth');
+
+        expect(errorForDateOfBirthLabel.textContent).toContain(expected);
     });
-    cleanup();
-  });
-
-  it("should post form when data is valid",  () => {
-
-    const fakeValidCustomer = {
-      id: 'JestTestId',
-      firstName: 'Tester',
-      lastName: 'Tested',
-      dateOfBirth: '2000-01-01'
-    };
-
-    // global.fetch = jest.fn(():any => Promise.resolve({
-    //   json: () => new Response(null,{ statusText: 'BAD REQUEST'})
-    // }));
-
-     waitFor(async () => {
-      const idInput = await container.findByTestId('id');
-      fireEvent.change(idInput, {target: {value: fakeValidCustomer.id}}); //just enter a space then blur
-      fireEvent.blur(idInput);
-      const firstNameInput = await container.findByTestId('firstName');
-      fireEvent.change(firstNameInput, {target: {value: fakeValidCustomer.firstName}});
-      fireEvent.blur(firstNameInput);
-
-      const lastNameInput = await container.findByTestId('firstName');
-      fireEvent.change(lastNameInput, {target: {value: fakeValidCustomer.lastName}});
-      fireEvent.blur(lastNameInput);
-      const dateInput = await container.findByTestId('dateOfBirth');
-      if (dateInput !== null)
-        fireEvent.change(dateInput, {target: {value: fakeValidCustomer.dateOfBirth}});
-      /* fire events that update state */
-      const submitButton = await container.findByRole("button", {name: "submit", hidden: true});
-      fireEvent.click(submitButton);
-    });
-     waitFor(() => {
-      expect(screen).toContain("shit");
-    });
-    cleanup();
 
 
-  })
+    // it("should display must be 18 error", () => {
+    //     act(() => {
+    //         render(<CustomerForm/>);
+    //     });
+    //
+    //     waitFor(async () => {
+    //         const dateInput = await screen.findByTestId('dateOfBirth');
+    //         if (dateInput !== null)
+    //             fireEvent.change(dateInput, {target: {value: '2222-01-01'}});
+    //         /* fire events that update state */
+    //         const submitButton = await screen.findByRole("button", {name: "submit", hidden: true});
+    //         fireEvent.click(submitButton);
+    //     });
+    //
+    //     waitFor(() => {
+    //         expect(screen).toContain("Must be 20 years of age");
+    //     });
+    //     cleanup();
+    // });
+    //
+    // it("should post form when data is valid", () => {
+    //
+    //     act(() => {
+    //         render(<CustomerForm/>);
+    //     });
+    //
+    //     const fakeValidCustomer = {
+    //         id: 'JestTestId',
+    //         firstName: 'Tester',
+    //         lastName: 'Tested',
+    //         dateOfBirth: '2000-01-01'
+    //     };
+    //
+    //
+    //     waitFor(async () => {
+    //         const idInput = await screen.findByTestId('id');
+    //         fireEvent.change(idInput, {target: {value: fakeValidCustomer.id}}); //just enter a space then blur
+    //         fireEvent.blur(idInput);
+    //         const firstNameInput = await screen.findByTestId('firstName');
+    //         fireEvent.change(firstNameInput, {target: {value: fakeValidCustomer.firstName}});
+    //         fireEvent.blur(firstNameInput);
+    //
+    //         const lastNameInput = await screen.findByTestId('firstName');
+    //         fireEvent.change(lastNameInput, {target: {value: fakeValidCustomer.lastName}});
+    //         fireEvent.blur(lastNameInput);
+    //         const dateInput = await screen.findByTestId('dateOfBirth');
+    //         if (dateInput !== null)
+    //             fireEvent.change(dateInput, {target: {value: fakeValidCustomer.dateOfBirth}});
+    //         /* fire events that update state */
+    //         const submitButton = await screen.findByRole("button", {name: "submit", hidden: true});
+    //         fireEvent.click(submitButton);
+    //         expect(screen).toContain("shit")
+    //     });
+    //     waitFor(() => {
+    //         expect(screen).toContain("shit");
+    //     });
+    //     cleanup();
+    //
+    //
+    // })
 
 });
