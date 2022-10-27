@@ -24,9 +24,10 @@ jobs:
       - run: npm ci
       - run: npm run build --if-present
       - run: npm run test:ci
+      - run: ls -la
       - name: Jest Reporter
         uses: tanmen/jest-reporter@v1.5
         if: always()
         with:
             github-token: ${{ secrets.GITHUB_TOKEN }}
-            result-file: ./simplecrmweb-no-cra/simplecrmweb-no-cra/result.json
+            result-file: ./simplecrmweb-no-cra/result.json
