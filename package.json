@@ -6,7 +6,7 @@
   "scripts": {
     "start": "webpack serve --port 3000",
     "build": "NODE_ENV=production webpack",
-    "test:ci": "jest --json --outputFile=result.json --testLocationInResults",
+    "test:ci": "jest --ci --json --outputFile=result.json --testLocationInResults",
     "test": "jest --no-cache --watchAll"
   },
   "author": "Steeves Saillant",
