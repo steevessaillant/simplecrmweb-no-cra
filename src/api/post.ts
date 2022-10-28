@@ -1,4 +1,4 @@
-export function postToServer(state: { id: string, firstName: string, lastName: string, dateOfBirth: string }) {
+export function postToServer(state: { id: string, firstName: string, lastName: string, dateOfBirth: string }): Promise<Response> {
     return fetch("http://localhost:5000/api/CRMCustomer", {
         method: 'POST',
         headers: {
