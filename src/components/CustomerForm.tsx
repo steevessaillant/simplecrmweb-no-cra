@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {Formik, Form, Field, ErrorMessage} from 'formik';
 import moment from "moment";
 import { FormLabel } from 'react-bootstrap';
@@ -7,6 +7,15 @@ import {postToServer} from "../api/post";
 
 
 export const CustomerForm = () => {
+
+  const formMessage = useRef<HTMLDivElement>(null);
+  
+  function displayFormSubmissionMessages(message: string, color: string) {
+    if (formMessage.current != undefined) {
+      formMessage.current.innerText = message
+      formMessage.current.setAttribute("style", "color:" + color);
+    }
+  }
 
   function validateId(value: string) {
     let error;
@@ -62,11 +71,15 @@ export const CustomerForm = () => {
               if (values.id !== '' && values.firstName !== ''
                   && values.lastName !== '' && values.dateOfBirth !== '') {
                 postToServer(values).then(response => {
-                  if(response.ok){
-                    //setResult(response.statusText);
-                    setSubmitting(true);
-                  }else{
-                    setSubmitting(false);
+                  if(response != undefined){
+                    if(response.ok){
+                      displayFormSubmissionMessages("The customer was succefully added or updated", "green");
+                      setSubmitting(true);
+                      formMessage.current?.focus()
+                    }else{
+                      displayFormSubmissionMessages("The customer was not saved, the service did not respond in a timely fashion", "red");
+                      setSubmitting(false);
+                    }
                   }
                 });
               }
@@ -92,7 +105,7 @@ export const CustomerForm = () => {
                 <ErrorMessage data-testid="errorForDateOfBirth" name='dateOfBirth' component='div'/>
                 <br/>
                 <button type="submit" name="submit" data-testid="submit" disabled={isSubmitting}>Create / Update Customer</button>
-
+                <div data-testid="formMessages" ref={formMessage}></div>               
               </Form>
           )}
         </Formik>

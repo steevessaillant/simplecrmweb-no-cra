@@ -3,11 +3,14 @@ import {cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {CustomerForm} from '../components/CustomerForm'
 import '@testing-library/jest-dom';
 import {postToServer} from '../api/post';
-jest.mock('../api/post');
+import { act } from 'react-dom/test-utils';
 
-
-// here the whole foo var is mocked deeply
-//const mockedPostToServer = jest.mocked(postToServer);
+let post = postToServer;
+const mockPostToServer = post = jest.fn(() =>
+  Promise.resolve({
+    json: () => Promise.resolve(),
+  }),
+) as jest.Mock;
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -118,16 +121,21 @@ describe("when loading and interacting with the form", () => {
         const dateInput = await findByTestId('dateOfBirth');
         fireEvent.change(dateInput, {target: {value: fakeValidCustomer.dateOfBirth}});
 
-        const submitButton = await findByTestId('submit');
+        const submitButton = await findByTestId('submit');        
 
-
-        fireEvent.click(submitButton);
-        //mockedPostToServer.postToServer(fakeValidCustomer)
-
+        act(() => {
+            fireEvent.click(submitButton);
+        })
+        const promise: Promise<Response> = mockPostToServer(fakeValidCustomer);
+        await promise.then((response: Response) => {
+            expect(response.status).toEqual(200);
+            expect(mockPostToServer).toBeCalledTimes(1);
+            expect(mockPostToServer.mock.instances[0].status).toEqual(200)
+        }).catch((error) => {
+            //fail(error);
+        })      
+        
         expect(submitButton).toBeDisabled();
-
-        //expect(jest.mocked(postToServer).mock.calls).toHaveLength(1);
-
     })
 
 })
