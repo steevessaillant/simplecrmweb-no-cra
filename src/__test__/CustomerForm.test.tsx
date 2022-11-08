@@ -72,6 +72,7 @@ describe("when loading and interacting with the form", () => {
         const expected = "Last name must be alpha";
 
         const { findByTestId } = render(<CustomerForm/>);
+        
 
         const lastNameInput = await findByTestId('lastName');
         fireEvent.change(lastNameInput, {target: {value: '1test'}});
@@ -87,6 +88,10 @@ describe("when loading and interacting with the form", () => {
         const expected = "Must be 18 years of age";
 
         const { findByTestId } = render(<CustomerForm/>);
+
+        const wrapper = render(<CustomerForm/>);
+
+        wrapper.find
 
         const dateInput = await findByTestId('dateOfBirth');
         fireEvent.change(dateInput, {target: {value: '2222-01-01'}});
